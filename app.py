@@ -7,8 +7,14 @@ from stacks.services_stack import ServicesStack
 from stacks.data_stack import DataStack
 
 app = cdk.App()
-ServicesStack(app, "ServicesStack")
-DataStack(app, "DataStack")
+ServicesStack(
+    app, 
+    "ServicesStack", 
+    env=cdk.Environment(account='797605901303', region='us-east-1'))
+DataStack(
+    app, 
+    "DataStack",
+    env=cdk.Environment(account='797605901303', region='us-east-1'))
 
 # PennymacStocksDashStack(app, "PennymacStocksDashStack",
 #     # If you don't specify 'env', this stack will be environment-agnostic.

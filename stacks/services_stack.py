@@ -3,7 +3,6 @@ from aws_cdk import (
     Stack,
     aws_lambda as _lambda,
     CfnOutput
-    # aws_sqs as sqs,
 )
 from constructs import Construct
 

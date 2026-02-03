@@ -1,6 +1,7 @@
 from aws_cdk import (
     # Duration,
     Stack,
+    aws_dynamodb as dynamodb,
     aws_lambda as _lambda,
     CfnOutput
     # aws_sqs as sqs,
@@ -11,6 +12,17 @@ class DataStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+
+        # Define DynamoDB table
+        self.stock_table = dynamodb.TableV2(
+            self, 
+            "StockTable",
+            partition_key = dynamodb.Attribute(name="date", type=dynamodb.AttributeType.STRING),
+            billing = dynamodb.Billing.on_demand(),
+        )
+
+        # Define S3 bucket
+
 
         # Define lambda function
         my_function = _lambda.Function(
