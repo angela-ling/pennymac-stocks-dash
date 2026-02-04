@@ -5,6 +5,7 @@ from aws_cdk import (
     aws_scheduler as scheduler,
     TimeZone,
     aws_scheduler_targets as targets,
+    aws_apigateway as apigateway,
     CfnOutput
 )
 from constructs import Construct
@@ -24,7 +25,7 @@ class ServicesStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="handler.handler",
             code=_lambda.Code.from_asset("lambda/ingestion"),
-            timeout=Duration.seconds(30),
+            timeout=Duration.minutes(2),
             environment={
                 "TABLE_NAME": stock_table.table_name, 
                 "MASSIVE_API_KEY": os.getenv("MASSIVE_API_KEY")
@@ -47,27 +48,37 @@ class ServicesStack(Stack):
             description="Fetches stock winners every weekday at 1:00 AM EST (10:00 PM PST) for the day that just ended."
         )
 
-        # # Retrieval Lambda Function
-        # retrieval_function = _lambda.Function(
-        #     self, "RetrievalFunction",
-        #     runtime=_lambda.Runtime.PYTHON_3_11,
-        #     handler="handler.handler",
-        #     code=_lambda.Code.from_asset("lambda/retrieval"),
-        #     environment={
-        #         "TABLE_NAME": stock_table.table_name
-        #     }
-        # )
+        # Retrieval Lambda Function
+        retrieval_function = _lambda.Function(
+            self, "RetrievalFunction",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="handler.handler",
+            code=_lambda.Code.from_asset("lambda/retrieval"),
+            environment={
+                "TABLE_NAME": stock_table.table_name
+            }
+        )
 
-        # # Grant Read Permissions
-        # stock_table.grant_read_data(retrieval_function)
+        # Grant Read Permissions
+        stock_table.grant_read_data(retrieval_function)
 
-        # # Create a Function URL to visit it in browser
-        # retrieval_url = retrieval_function.add_function_url(
-        #     auth_type=_lambda.FunctionUrlAuthType.NONE, # Open to the public for the demo
-        # )
+        # API Gateway
+        api = apigateway.RestApi(self, "StockApi", 
+            rest_api_name="Stock Movers Service",
+            default_cors_preflight_options={
+                "allow_origins": apigateway.Cors.ALL_ORIGINS,
+                "allow_methods": apigateway.Cors.ALL_METHODS
+            }
+        )
 
-        # # 4. Output the URL so you can find it after deploying
-        # CfnOutput(self, "RetrievalApiUrl", value=retrieval_url.url)
+        winners_resource = api.root.add_resource("winners")
+
+        # Connect retrieval_function
+        winners_resource.add_method(
+            "GET", 
+            apigateway.LambdaIntegration(retrieval_function)
+        )
+
 
 
 

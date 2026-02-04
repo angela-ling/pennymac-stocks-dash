@@ -17,9 +17,10 @@ def handler(event, context):
     est = timezone(timedelta(hours=-5))
     now = datetime.now(est)
 
-    # If triggered before 11 PM EST, look at yesterday's data
+    # Always pull yesterday's data since we run this at 1 AM EST
     # Reasoning: Massive should have data ready at midnight EST. Give one hour buffer for Massive API to update
     target_date = (now - timedelta(days=1)).strftime('%Y-%m-%d')
+    target_date = "2026-01-29" # Hardcoded for testing purposes
 
     logger.info(f"Triggered at {now}. Targeting market date: {target_date}")
     
