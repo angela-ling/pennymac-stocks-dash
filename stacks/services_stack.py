@@ -1,7 +1,9 @@
 from aws_cdk import (
-    # Duration,
     Stack,
     aws_lambda as _lambda,
+    aws_scheduler as scheduler,
+    TimeZone,
+    aws_scheduler_targets as targets,
     CfnOutput
 )
 from constructs import Construct
@@ -28,33 +30,17 @@ class ServicesStack(Stack):
         )
         # Give Lambda permission to write to the DynamoDB table
         stock_table.grant_write_data(ingestion_function)
-        
-        # Define Hello lambda function
-        my_function = _lambda.Function(
-            self, "ServicesHelloFunction",
-            runtime = _lambda.Runtime.NODEJS_22_X,
-            handler = "index.handler",
-            code = _lambda.Code.from_inline(
-                """
-                exports.handler = async function(event) {
-                    return {
-                        statusCode: 200,
-                        body: JSON.stringify('Hello World - Services Stack'),
-                    };
-                };
-                """
+
+        # Define the Schedule (5:00 PM EST / 22:00 UTC)
+        scheduler.Schedule(self, "DailyStockSchedule",
+            schedule=scheduler.ScheduleExpression.cron(
+                minute="0",
+                hour="17", # 5:00 PM EST
+                day="*",
+                month="*",
+                time_zone=TimeZone.AMERICA_NEW_YORK 
             ),
+            target=targets.LambdaInvoke(ingestion_function),
+            description="Fetches stock winners every weekday at 5 PM New York time."
         )
 
-        my_function_url = my_function.add_function_url(
-            auth_type=_lambda.FunctionUrlAuthType.NONE,
-        )
-
-        CfnOutput(self, "myFunctionUrlOutput", value=my_function_url.url)
-        # The code that defines your stack goes here
-
-        # example resource
-        # queue = sqs.Queue(
-        #     self, "PennymacStocksDashQueue",
-        #     visibility_timeout=Duration.seconds(300),
-        # )
