@@ -3,6 +3,8 @@
 
 A full-stack serverless application that automatically identifies and displays the daily "Top Moving" stock from a select group of high-volume tickers (AAPL, MSFT, GOOGL, AMZN, TSLA).
 
+Link to dashboard: http://datastack-stockappbucketa91b76cd-opjzru0uybwn.s3-website-us-east-1.amazonaws.com/
+
 ---
 
 ## System Architecture ##
@@ -58,9 +60,6 @@ To meet the "Last 7 Days" requirement, the retrieval logic uses a **12-day lookb
     ```bash
     cdk deploy --all
     ```
-
-3. **View Dashboard**
-http://datastack-stockappbucketa91b76cd-opjzru0uybwn.s3-website-us-east-1.amazonaws.com/
 
 ---
 
