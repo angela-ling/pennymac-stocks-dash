@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pennymac Stock Winners</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f4f7f6; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .gain { color: #27ae60; font-weight: bold; } /* Green for gain */
+        .loss { color: #e74c3c; font-weight: bold; } /* Red for loss */
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>7-Day Winning Stocks</h1>
+        <table id="winnersTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Ticker</th>
+                    <th>Close Price</th>
+                    <th>% Change</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = "https://twkjfk872h.execute-api.us-east-1.amazonaws.com/prod/winners";
+
+        async function fetchWinners() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                const tbody = document.querySelector("#winnersTable tbody");
+
+                data.forEach(item => {
+                    const row = document.createElement("tr");
+                    const isGain = item.percent_change >= 0;
+                    const colorClass = isGain ? "gain" : "loss";
+                    const sign = isGain ? "+" : "";
+
+                    row.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>${item.ticker}</td>
+                        <td>$${item.close_price.toFixed(2)}</td>
+                        <td class="${colorClass}">${sign}${item.percent_change}%</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) { console.error("Error fetching data:", err); }
+        }
+        fetchWinners();
+    </script>
+</body>
+</html>
