@@ -51,7 +51,7 @@ To meet the "Last 7 Days" requirement, the retrieval logic uses a **12-day lookb
 ### Installation & Deployment
 1.  **Clone and Install**
     ```bash
-    git clone [your-repo-url]
+    git clone https://github.com/angela-ling/pennymac-stocks-dash.git
     cd pennymac-stocks-dash
     pip install -r requirements.txt
     ```
