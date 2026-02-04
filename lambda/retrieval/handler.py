@@ -17,10 +17,10 @@ def handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
 
-    # 1. Calculate the date range (Last 7 Days)
+    # 1. Calculate the date range (Last 7 Days) We use last 10 days to account for weekends
     est = timezone(timedelta(hours=-5))
     end_date = datetime.now(est).strftime('%Y-%m-%d')
-    start_date = (datetime.now(est) - timedelta(days=7)).strftime('%Y-%m-%d')
+    start_date = (datetime.now(est) - timedelta(days=10)).strftime('%Y-%m-%d')
 
     try:
         # 2. Scan the table for dates within that range

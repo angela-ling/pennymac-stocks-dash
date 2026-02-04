@@ -12,10 +12,12 @@ data = DataStack(
     app, 
     "DataStack",
     env=cdk.Environment(account='797605901303', region='us-east-1'))
+
 ServicesStack(
     app, 
     "ServicesStack", 
     stock_table=data.stock_table,
+    site_bucket=data.site_bucket,
     env=cdk.Environment(account='797605901303', region='us-east-1'))
 
 

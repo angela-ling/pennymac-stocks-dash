@@ -1,10 +1,10 @@
 from aws_cdk import (
     # Duration,
     Stack,
+    aws_s3 as s3,
     aws_dynamodb as dynamodb,
-    aws_lambda as _lambda,
-    CfnOutput
-    # aws_sqs as sqs,
+    CfnOutput,
+    RemovalPolicy
 )
 from constructs import Construct
 
@@ -22,34 +22,19 @@ class DataStack(Stack):
         )
 
         # Define S3 bucket
-
-
-        # Define lambda function
-        my_function = _lambda.Function(
-            self, "DataHelloFunction",
-            runtime = _lambda.Runtime.NODEJS_22_X,
-            handler = "index.handler",
-            code = _lambda.Code.from_inline(
-                """
-                exports.handler = async function(event) {
-                    return {
-                        statusCode: 200,
-                        body: JSON.stringify('Hello World - Data Stack'),
-                    };
-                };
-                """
-            ),
+        self.site_bucket = s3.Bucket(
+            self, "StockAppBucket",
+            public_read_access=True,    # Any browser can access the bucket
+            block_public_access=s3.BlockPublicAccess(
+                block_public_acls=True, # Ignore any Access Control Lists because they are file by file
+                block_public_policy=False,  # Let people read the folder
+                ignore_public_acls=True,    # Ignore any ACL. Don't want to make files public via ACL
+                restrict_public_buckets=False   # ALlow folder to be labeled as public
+            ),  # Make sure the bucket is publicly accessible
+            website_index_document="index.html",
+            removal_policy=RemovalPolicy.DESTROY,
+            auto_delete_objects=True
         )
 
-        my_function_url = my_function.add_function_url(
-            auth_type=_lambda.FunctionUrlAuthType.NONE,
-        )
-
-        CfnOutput(self, "myFunctionUrlOutput", value=my_function_url.url)
-        # The code that defines your stack goes here
-
-        # example resource
-        # queue = sqs.Queue(
-        #     self, "PennymacStocksDashQueue",
-        #     visibility_timeout=Duration.seconds(300),
-        # )
+        # Output the Website URL
+        CfnOutput(self, "WebsiteURL", value=self.site_bucket.bucket_website_url)

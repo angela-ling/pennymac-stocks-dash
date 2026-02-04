@@ -6,6 +6,7 @@ from aws_cdk import (
     TimeZone,
     aws_scheduler_targets as targets,
     aws_apigateway as apigateway,
+    aws_s3_deployment as s3_deploy,
     CfnOutput
 )
 from constructs import Construct
@@ -14,7 +15,7 @@ from dotenv import load_dotenv
 
 class ServicesStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, stock_table, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, stock_table, site_bucket, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Ingestion Lambda Function
@@ -77,6 +78,12 @@ class ServicesStack(Stack):
         winners_resource.add_method(
             "GET", 
             apigateway.LambdaIntegration(retrieval_function)
+        )
+
+        # Deploy the frontend files to the bucket created in DataStack
+        s3_deploy.BucketDeployment(self, "DeployWebsite",
+            sources=[s3_deploy.Source.asset("./frontend")],
+            destination_bucket=site_bucket
         )
 
 
