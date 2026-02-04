@@ -1,6 +1,7 @@
 import boto3
 import logging
 from botocore.exceptions import ClientError
+from decimal import Decimal
 
 logger = logging.getLogger()
 
@@ -14,15 +15,14 @@ def save_winner_to_db(table_name, winner_data):
         # DynamoDB is schemaless, but we must provide the Partition and Sort Keys
         logger.info(f"Saving {winner_data['symbol']} to table {table_name}")
         
-        response = table.put_item(
+        table.put_item(
             Item={
-                'date': winner_data['from'],               # Sort Key
-                'ticker': winner_data['symbol'],    # Convert numbers to strings or decimals
-                'percent_change': winner_data['percent_change'],
-                'close_price': winner_data['close']
+                'date': winner_data['from'],   
+                'ticker': winner_data['symbol'],    
+                'percent_change': Decimal(str(winner_data['percent_change'])), # convert to string first to avoid floating point noise
+                'close_price': Decimal(str(winner_data['close']))
             }
         )
-        return response
 
     except ClientError as e:
         # 3. Handle AWS-side errors (permissions, throttling, etc.)

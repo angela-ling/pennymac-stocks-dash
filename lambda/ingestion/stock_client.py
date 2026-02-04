@@ -4,6 +4,7 @@
 
 import requests
 import logging
+import time
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -17,9 +18,12 @@ def get_stock_data(api_key, ticker, date):
 
     try:
         logger.info(f"Fetching data for {ticker} on {date}")
-        response = requests.get(url, params=params, timeout=5) # Always use a timeout!
-        
-        # This will raise an error for 4xx or 5xx responses
+        response = requests.get(url, params=params, timeout=5) 
+
+        # If the market was closed, this endpoint usually returns 404 or a specific message
+        if response.status_code == 404:
+            return {"status": "NOT_FOUND"}
+        # raise an error for 4xx or 5xx responses
         response.raise_for_status() 
         
         return response.json()
@@ -35,8 +39,16 @@ def fetch_all_tickers(api_key, ticker_list, date):
     all_data = []
     for ticker in ticker_list:
         data = get_stock_data(api_key, ticker, date)
-        if data and data.get("status") == "OK":
-            all_data.append(data)
+
+        # On holidays or weekends, if the API returns 'NOT_FOUND' or isn't 'OK', skip the whole day
+        if not data or data.get("status") != "OK":
+            logger.info(f"Market data not available for {date}. Likely a weekend or holiday.")
+            return []
+        
+        all_data.append(data)
+
+        # Rate limiting: 5 requests per minute = 12 seconds per request
+        time.sleep(12)
     
     return all_data
 

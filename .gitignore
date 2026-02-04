@@ -10,3 +10,12 @@ __pycache__
 cdk.out
 
 .env
+
+# 3. Bundled Lambda Dependencies (Vendored)
+# We exclude the folders created by 'pip install -t .'
+lambda/ingestion/requests/
+lambda/ingestion/urllib3/
+lambda/ingestion/idna/
+lambda/ingestion/charset_normalizer/
+lambda/ingestion/certifi/
+lambda/ingestion/*.dist-info/
