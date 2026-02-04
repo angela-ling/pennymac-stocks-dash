@@ -5,13 +5,31 @@ from aws_cdk import (
     CfnOutput
 )
 from constructs import Construct
+import os
+from dotenv import load_dotenv
 
 class ServicesStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, stock_table, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Define lambda function
+        # Ingestion Lambda Function
+        load_dotenv()
+
+        ingestion_function = _lambda.Function(
+            self, "IngestionFunction",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="handler.handler",
+            code=_lambda.Code.from_asset("lambda/ingestion"),
+            environment={
+                "TABLE_NAME": stock_table.table_name, 
+                "MASSIVE_API_KEY": os.getenv("MASSIVE_API_KEY")
+            }
+        )
+        # Give Lambda permission to write to the DynamoDB table
+        stock_table.grant_write_data(ingestion_function)
+        
+        # Define Hello lambda function
         my_function = _lambda.Function(
             self, "ServicesHelloFunction",
             runtime = _lambda.Runtime.NODEJS_22_X,
