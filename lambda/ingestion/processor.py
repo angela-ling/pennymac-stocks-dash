@@ -4,13 +4,13 @@ def calculate_highest_mover(stock_data_list):
     Inputs: A list of dicts with 'symbol', 'open', and 'close'.
     Output: The single dictionary with the highest percentage change.
     """
-    # 1. First, calculate the percent change for every stock in the list
+    # Calculate the percent change for every stock in the list
     for stock in stock_data_list:
         # Formula: ((Close - Open) / Open) * 100
         change = ((stock['close'] - stock['open']) / stock['open']) * 100
         stock['percent_change'] = round(change, 2)
 
-    # 2. Use max() with a lambda key to find the dictionary with the highest change
+    # Use max() with a lambda key to find the dictionary with the highest change
     winner = max(stock_data_list, key=lambda x: abs(x['percent_change']))
     
     return winner

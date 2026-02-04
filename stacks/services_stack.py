@@ -7,7 +7,6 @@ from aws_cdk import (
     aws_scheduler_targets as targets,
     aws_apigateway as apigateway,
     aws_s3_deployment as s3_deploy,
-    CfnOutput
 )
 from constructs import Construct
 import os
@@ -18,7 +17,7 @@ class ServicesStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, stock_table, site_bucket, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Ingestion Lambda Function
+        # Define Ingestion Lambda Function
         load_dotenv()
 
         ingestion_function = _lambda.Function(
@@ -35,12 +34,12 @@ class ServicesStack(Stack):
         # Give Lambda permission to write to the DynamoDB table
         stock_table.grant_write_data(ingestion_function)
 
-        # EventBridge cron job (5:00 PM EST)
-        # Reasoning: Stock market closes at 4pm EST. Give one hour buffer for Massive API to update
+        # EventBridge cron job (1:00 AM EST)
+        # Reasoning: Massive end of day data is available by 9:00 PM PST, but use 10 PM PST to ensure data is ready
         scheduler.Schedule(self, "DailyStockSchedule",
             schedule=scheduler.ScheduleExpression.cron(
                 minute="0",
-                hour="1", # 1:00AM EST or 10PM PST
+                hour="1", # 1:00 AM EST or 10:00 PM PST
                 day="*",
                 month="*",
                 time_zone=TimeZone.AMERICA_NEW_YORK 
@@ -60,7 +59,7 @@ class ServicesStack(Stack):
             }
         )
 
-        # Grant Read Permissions
+        # Grant retrieval function permission to read from stock_table
         stock_table.grant_read_data(retrieval_function)
 
         # API Gateway
@@ -82,7 +81,7 @@ class ServicesStack(Stack):
             )
         )
 
-        # 2. Link the plan to your 'prod' stage
+        # Link the plan to your prod stage
         usage_plan.add_api_stage(
             stage=api.deployment_stage
         )

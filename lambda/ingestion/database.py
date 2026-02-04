@@ -6,18 +6,17 @@ from decimal import Decimal
 logger = logging.getLogger()
 
 def save_winner_to_db(table_name, winner_data):
-    # 1. Initialize the DynamoDB Resource
+    # Initialize the DynamoDB Resource
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
 
     try:
-        # 2. Put the item into the table
-        # DynamoDB is schemaless, but we must provide the Partition and Sort Keys
+        # Put item into the table
         logger.info(f"Saving {winner_data['symbol']} to table {table_name}")
         
         table.put_item(
             Item={
-                'date': winner_data['from'],   
+                'date': winner_data['from'],   # partition key
                 'ticker': winner_data['symbol'],    
                 'percent_change': Decimal(str(winner_data['percent_change'])), # convert to string first to avoid floating point noise
                 'close_price': Decimal(str(winner_data['close']))
@@ -25,7 +24,7 @@ def save_winner_to_db(table_name, winner_data):
         )
 
     except ClientError as e:
-        # 3. Handle AWS-side errors (permissions, throttling, etc.)
+        # Handle AWS-side errors (permissions, throttling, etc.)
         logger.error(f"AWS Error saving to DynamoDB: {e.response['Error']['Message']}")
         raise e
     except Exception as e:
@@ -33,6 +32,7 @@ def save_winner_to_db(table_name, winner_data):
         raise e
     
 """
+# Example winner_data structure:
 {
     'status': 'OK', 
     'from': '2026-02-02', 

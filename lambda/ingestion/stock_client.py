@@ -33,9 +33,6 @@ def get_stock_data(api_key, ticker, date):
         return None
 
 def fetch_all_tickers(api_key, ticker_list, date):
-    """
-    Orchestrates the fetching of all 6 tickers.
-    """
     all_data = []
     for ticker in ticker_list:
         data = get_stock_data(api_key, ticker, date)
@@ -56,21 +53,20 @@ if __name__ == "__main__":
     from dotenv import load_dotenv
     import os
     
-    # 1. Load your local .env file
+    # Load local .env file
     load_dotenv()
     api_key = os.getenv("MASSIVE_API_KEY")
     
-    # 2. Define your test parameters
+    # Define your test parameters
     tickers = ["AAPL", "MSFT"]
     test_date = "2026-01-09"
     
-    # 3. Call your function and print results
+    # Call your function and print results
     print(f"--- Testing API Fetch for {test_date} ---")
     results = fetch_all_tickers(api_key, tickers, test_date)
     
     for stock in results:
         print(type(stock))
-        # print(f"Symbol: {stock['symbol']} | Close: {stock['close']}")
 
 """
 Massive API response format:
