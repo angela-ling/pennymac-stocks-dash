@@ -59,7 +59,7 @@ To meet the "Last 7 Days" requirement, the retrieval logic uses a **12-day lookb
     cdk deploy --all
     ```
 
-3. **View Website**
+3. **View Dashboard**
 http://datastack-stockappbucketa91b76cd-opjzru0uybwn.s3-website-us-east-1.amazonaws.com/
 
 ---
