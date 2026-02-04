@@ -5,7 +5,7 @@ A full-stack serverless application that automatically identifies and displays t
 
 ---
 
-##System Architecture##
+## System Architecture ##
 The project follows a decoupled, event-driven architecture built entirely with the **AWS Cloud Development Kit (CDK)**.
 
 * **Frontend:** A responsive Single Page Application (SPA) hosted on **Amazon S3**. It utilizes the Fetch API to retrieve data from the backend and renders a color-coded "Winning Stocks" table.
