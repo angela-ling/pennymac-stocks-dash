@@ -67,9 +67,24 @@ class ServicesStack(Stack):
         api = apigateway.RestApi(self, "StockApi", 
             rest_api_name="Stock Movers Service",
             default_cors_preflight_options={
-                "allow_origins": apigateway.Cors.ALL_ORIGINS,
-                "allow_methods": apigateway.Cors.ALL_METHODS
+                "allow_origins": apigateway.Cors.ALL_ORIGINS,   # Accept requests from any website
+                "allow_methods": ["GET", "OPTIONS"]    # Allows OPTIONS from browser and GET for read access
             }
+        )
+
+        # Usage Plan to prevent billing spikes from excessive requests
+        usage_plan = api.add_usage_plan(
+            "StockApiUsagePlan",
+            name="Standard",
+            throttle=apigateway.ThrottleSettings(
+                rate_limit=2,   # Average requests per second
+                burst_limit=5   # Maximum concurrent requests
+            )
+        )
+
+        # 2. Link the plan to your 'prod' stage
+        usage_plan.add_api_stage(
+            stage=api.deployment_stage
         )
 
         winners_resource = api.root.add_resource("winners")

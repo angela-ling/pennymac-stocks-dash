@@ -1,5 +1,4 @@
 from aws_cdk import (
-    # Duration,
     Stack,
     aws_s3 as s3,
     aws_dynamodb as dynamodb,
@@ -32,7 +31,7 @@ class DataStack(Stack):
                 restrict_public_buckets=False   # ALlow folder to be labeled as public
             ),  # Make sure the bucket is publicly accessible
             website_index_document="index.html",
-            removal_policy=RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,   # To avoid charges after interview is complete
             auto_delete_objects=True
         )
 
